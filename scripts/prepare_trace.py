@@ -20,7 +20,9 @@ from ctf2tef import (
     CustomMetadataDefinition,
     EventPhase,
     ctf_to_tef,
+    instrumentation_ctf_to_tef,
     prepare_dir,
+    prepare_dir_for_instrumentation,
 )
 
 
@@ -209,6 +211,12 @@ def setup_parser(parser: argparse.ArgumentParser):
         help="Path to the built Zephyr ELF, required for extracting symbols of memory regions",
         default=None,
     )
+    parser.add_argument(
+        "--instrumentation-ctf",
+        type=Path,
+        help="Path to the built Zephyr ELF, required for extracting symbols of memory regions",
+        default=None,
+    )
     return parser
 
 
@@ -259,6 +267,14 @@ def prepare(args: argparse.Namespace):
     with prepare_dir(args.ctf_trace, args.zephyr_base) as tmp_dir:
         results = ctf_to_tef(str(tmp_dir), False, CUSTOM_METADATA, CUSTOM_EVENTS)
         tef_trace, thread_name = results.tef, results.thread_names
+
+    if args.instrumentation_ctf is not None:
+        with prepare_dir_for_instrumentation(
+            args.instrumentation_ctf, args.build_dir / "ctf_metadata"
+        ) as tmp_dir:
+            tef_trace += instrumentation_ctf_to_tef(
+                str(tmp_dir), args.zephyr_base, args.zephyr_elf_path
+            ).tef["traceEvents"]
 
     if thread_name:
         # Custom metadata event supported by Speedscope to associate ID with thread name

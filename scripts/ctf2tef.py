@@ -403,6 +403,36 @@ def ctf_to_tef(
     return CTFConversionResult(converted, thread_name)
 
 
+def instrumentation_ctf_to_tef(
+    path: str,
+    zephyr_base: str,
+    instrumentation_elf: Path,
+) -> CTFConversionResult:
+    """
+    Converts CTF instrumentation trace to the JSON in TEF format.
+
+    Parameters
+    ----------
+    path : str
+        Path to the file with trace in CTF.
+    zephyr_base : str
+        The path to a Zephyr repository.
+    instrumentation_elf : Path
+        Path to the Zephyr elf file.
+
+    Returns
+    -------
+    CTFConversionResult
+        The converted trace and information about thread names
+    """
+    assert zephyr_base is not None
+    sys.path.insert(1, f"{zephyr_base}/scripts")
+    import zaru
+
+    converted, _ = zaru.get_traces_in_trace_event_format(path, instrumentation_elf, True)
+    return CTFConversionResult(converted, None)
+
+
 @contextmanager
 def prepare_dir(trace: Path, zephyr_base: Path | None = None):
     """
@@ -524,16 +554,12 @@ if __name__ == "__main__":
         exit(1)
 
     if args.instrumentation_traces:
-        assert args.zephyr_base is not None
-        sys.path.insert(1, f"{args.zephyr_base}/scripts")
-        import zaru
-
         with prepare_dir_for_instrumentation(
             args.ctf_trace, args.instrumentation_metadata
         ) as tmp_dir:
-            converted, _ = zaru.get_traces_in_trace_event_format(
-                str(tmp_dir), Path(args.instrumentation_elf), True
-            )
+            converted = instrumentation_ctf_to_tef(
+                str(tmp_dir), args.zephyr_base, args.instrumentation_elf
+            ).tef
     else:
         with prepare_dir(args.ctf_trace, args.zephyr_base) as tmp_dir:
             converted = ctf_to_tef(str(tmp_dir), args.exclude_args).tef

@@ -10,6 +10,7 @@ You can run the converter with the following command:
 west zpl-prepare-trace \
   [-h] -o OUTPUT [--zephyr-base ZEPHYR_BASE] [--build-dir BUILD_DIR] \
   [--tflm-model-path TFLM_MODEL_PATH] [--tvm-model-path TVM_MODEL_PATH] \
+  [--instrumentation-ctf INSTRUMENTATION_CTF] \
   ctf_trace
 ```
 
@@ -19,6 +20,7 @@ There are several optional arguments available:
 * `--build-dir` - the directory storing the results of the build and [ram_report](https://docs.zephyrproject.org/latest/develop/optimizations/tools.html#build-target-ram-report).
 * `--tflm-model-path` - the provided TFLite Micro model is processed to extract information about its layer and tensors, and the information is converted to [`MODEL`](model-event) {{TEF_Metadata}} event.
 * `--tvm-model-path` - the provided microTVM graph JSON file is processed to extract information about model's layer and tensors, and the information is converted to [`MODEL`](model-event) {{TEF_Metadata}} Event,
+* `--instrumentation-ctf` - the separate CTF file, containing instrumentation traces.
 * `-o` - the file path which points to the file where the converted trace should be saved.
   If not provided, the JSON will be printed to STDOUT.
 
