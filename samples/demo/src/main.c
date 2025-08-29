@@ -21,7 +21,7 @@
 #define OUTPUT_SHAPE_0 1
 #define OUTPUT_SHAPE_1 4
 
-#define MOVEMENT_THRESHOLD 0.01f
+#define MOVEMENT_THRESHOLD 0.05f
 
 K_SEM_DEFINE(run_inference, 0, 1);
 K_MUTEX_DEFINE(data_buffer_mutex);
